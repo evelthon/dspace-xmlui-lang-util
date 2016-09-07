@@ -43,7 +43,6 @@ class XmluiParser:
 
         for key, val in di.items():
             # print(key, val)
-
             if key:
                 code = root.xpath("/catalogue/message[@key='" + key + "']")
                 if code:

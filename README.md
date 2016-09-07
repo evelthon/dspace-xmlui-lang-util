@@ -17,5 +17,6 @@ and an older version of a translation `message_xx.xml`.
 3. Execute with `python3 lang-util.py {migrate | export | import}`
 
 
+
 ###Note
 Use `python3 lang-util.py -h` for help.
