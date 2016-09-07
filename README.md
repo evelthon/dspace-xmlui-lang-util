@@ -16,4 +16,4 @@ messages_xx.xml have been ported over. You are left translating of only
 and an older version of a translation `message_xx.xml`.
 2. Edit the python script, and update `incomplete_translation_file`
  accordingly.
-3. Execute with `python lang-util.py`
+3. Execute with `python3 lang-util.py`
