@@ -65,7 +65,7 @@ class SpreadSheet:
 
         doc = etree.parse(from_file)
         '''A standard dict does not maintain insertion order thus we need to use collections.OrderedDict. If we do not,
-        the generated XLSX will have a mixed orderring of key/value pairs'''
+        the generated XLSX will have a mixed ordering of key/value pairs'''
         di = OrderedDict()
         for n in doc.getroot().iterdescendants():
             tmp = n.attrib
@@ -76,10 +76,8 @@ class SpreadSheet:
 
         # print(di)
         for index, (key, val) in enumerate(di.items()):
-            # print (index, key, val)
-            # if key=='xmlui.general.dspace_home':
-            #     print (index)
-            index=index+1
+
+            index += 1
             colA = "A" + str(index)
             colB = "B" + str(index)
 
@@ -90,12 +88,12 @@ class SpreadSheet:
 
     def importXLSX(self):
 
-        wb = load_workbook(exported_file)
+        wb = load_workbook(self.from_file)
         sheet = wb.get_sheet_by_name('Sheet')
-        print(sheet.max_row)
+        # print(sheet.max_row)
 
         # Parse the new XML translation
-        dest = etree.parse(output_file)
+        dest = etree.parse(self.to_file)
         root = dest.getroot()
         num_of_keys = sheet.max_row
         for x in range(1, num_of_keys):
