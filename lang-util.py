@@ -12,10 +12,12 @@ output_file = 'output.xml'
 imported_file = 'imported.xml'
 exported_file = 'exported.xlsx'
 
+
 class XmluiParser:
-    def __init__(self, from_file, to_file):
+    def __init__(self, from_file, to_file, base_file):
         self.from_file = from_file
         self.to_file = to_file
+        self.base_file = base_file
 
     def processFiles(self):
 
@@ -38,7 +40,7 @@ class XmluiParser:
                 # print(str(tmp.get('key')) + " --  "  + str(n.text))
 
         # Parse the latest English translation
-        dest = etree.parse(source_file)
+        dest = etree.parse(self.base_file)
         root = dest.getroot()
 
         for key, val in di.items():
@@ -54,9 +56,11 @@ class XmluiParser:
 
 
 class SpreadSheet:
-    def __init__(self, from_file, to_file):
+    def __init__(self, from_file, to_file, base_file=False):
         self.from_file = from_file
         self.to_file = to_file
+        if base_file:
+            self.base_file = base_file
 
     def exportXLSX(self):
         wb = Workbook()
@@ -104,7 +108,7 @@ class SpreadSheet:
                 code[0].text = sheet[colB].value
 
             #print(sheet[colA].value + "  " + sheet[colB].value)
-        f = open(imported_file, 'wb')
+        f = open(self.base_file, 'wb')
         f.write(etree.tostring(root, encoding='UTF-8', pretty_print=True))
         f.close()
 
@@ -122,6 +126,9 @@ if __name__ == "__main__":
     parser_a.add_argument('-t', '--to-file', default=output_file,
                         help='Place translations in this file (this usually being the latest version).',
                         required=False)
+    parser_a.add_argument('-b', '--base-file', default=source_file,
+                          help='This is usually the messages.xml file released with the current version of DSpace.',
+                          required=False)
     parser_a.set_defaults(which='migrate')
 
     # create the parser for the "export" command
@@ -139,33 +146,41 @@ if __name__ == "__main__":
     parser_c.add_argument('-f', '--from-file', default=exported_file,
                         help='Read translation strings from this file.',
                         required=False)
-    parser_c.add_argument('-t', '--to-file', default=imported_file,
+    parser_c.add_argument('-t', '--to-file', default=source_file,
                         help='Place translations in this file (this usually being the latest version).',
                         required=False)
+    parser_c.add_argument('-b', '--base-file', default=source_file,
+                          help='This is usually the messages.xml file released with the current version of DSpace.',
+                          required=False)
     parser_c.set_defaults(which='import')
 
-
     args = parser.parse_args()
-    # print(args)
-    # print(args.which)
+
     try:
         from_file = args.from_file
         to_file = args.to_file
         if args.which == 'migrate':
-            # print("Migrate")
-            obj = XmluiParser(from_file, to_file)
+            base_file = args.base_file
+            print("\nMigrating existing strings from %s to %s. Using the latest %s for generating output.\n" % (from_file, to_file, base_file))
+            obj = XmluiParser(from_file, to_file, base_file)
             obj.processFiles()
 
         elif args.which == 'export':
-            # print("Export")
+            print("\nConverting %s to %s. Use a spreadsheet editor to edit your translation.\n" % (
+            from_file, to_file))
             obj =  SpreadSheet(from_file, to_file)
             obj.exportXLSX()
+
         elif args.which == 'import':
-            # print("Import")
-            obj =  SpreadSheet(from_file, to_file)
+            base_file = args.base_file
+            print("\nConverting %s to %s. \n" % (
+                from_file, to_file))
+            obj =  SpreadSheet(from_file, to_file, base_file)
             obj.importXLSX()
+
         else:
             print ("Use -h for instructions.")
+
     except AttributeError:
-        print ("Use -h for instructions.")
+        print ("\nUse -h for instructions.\n")
 
