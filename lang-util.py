@@ -23,7 +23,7 @@ class XmluiParser:
         self.to_file = to_file
         self.base_file = base_file
 
-    def process _files(self):
+    def process_files(self):
 
         # Parse the non completed translation file
         doc = etree.parse(self.from_file)
@@ -62,6 +62,7 @@ class XmluiParser:
         root.attrib['{http://www.w3.org/XML/1998/namespace}lang'] = language_variable
 
         f = open(self.to_file, 'wb')
+        f.write(bytes('<?xml version="1.0" encoding="UTF-8"?>\n', 'utf8'))
         f.write(etree.tostring(root, encoding='UTF-8', pretty_print=True))
         f.close()
 
