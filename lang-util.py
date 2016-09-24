@@ -5,6 +5,10 @@ from lxml import etree
 from openpyxl import Workbook, load_workbook
 from collections import OrderedDict
 import argparse
+import os.path
+import lxml
+from itertools import islice
+
 
 source_file = 'messages.xml'
 incomplete_translation_file = 'messages_el.xml'
@@ -19,11 +23,14 @@ class XmluiParser:
         self.to_file = to_file
         self.base_file = base_file
 
-    def processFiles(self):
+    def process _files(self):
 
         # Parse the non completed translation file
         doc = etree.parse(self.from_file)
         di = dict()
+
+        # Get xml:lang variable from old translation file
+        language_variable = doc.getroot().attrib.get('{http://www.w3.org/XML/1998/namespace}lang')
         for n in doc.getroot().iterdescendants():
             tmp = n.attrib
 
@@ -35,6 +42,7 @@ class XmluiParser:
                 else:
                     # String is empty/does not have content.
             '''
+
             if tmp.get('key'):
                 di[tmp.get('key')] = n.text
                 # print(str(tmp.get('key')) + " --  "  + str(n.text))
@@ -50,9 +58,27 @@ class XmluiParser:
                 if code:
                     code[0].text = val
 
+        # Set the language variable to the root tag of the new file
+        root.attrib['{http://www.w3.org/XML/1998/namespace}lang'] = language_variable
+
         f = open(self.to_file, 'wb')
         f.write(etree.tostring(root, encoding='UTF-8', pretty_print=True))
         f.close()
+
+        # find the line number of the first element
+        '''
+        lookup_line = '<catalogue'
+        lookup_line_num = 0
+        with open(self.base_file) as bfile:
+            for num, line in enumerate(bfile, 1):
+                if lookup_line in line:
+                    print('found at line ' + str(num))
+                    lookup_line_num = num
+
+        with open(self.base_file) as f:
+            lines = list(islice(f, 0, lookup_line_num-1, 1))
+            print(lines)
+        '''
 
 
 class SpreadSheet:
@@ -94,7 +120,6 @@ class SpreadSheet:
 
         wb = load_workbook(self.from_file)
         sheet = wb.get_sheet_by_name('Sheet')
-        # print(sheet.max_row)
 
         # Parse the new XML translation
         dest = etree.parse(self.to_file)
@@ -107,10 +132,11 @@ class SpreadSheet:
             if code:
                 code[0].text = sheet[colB].value
 
-            #print(sheet[colA].value + "  " + sheet[colB].value)
+            # print(sheet[colA].value + "  " + sheet[colB].value)
         f = open(self.base_file, 'wb')
         f.write(etree.tostring(root, encoding='UTF-8', pretty_print=True))
         f.close()
+
 
 if __name__ == "__main__":
 
@@ -163,11 +189,11 @@ if __name__ == "__main__":
             base_file = args.base_file
             print("\nMigrating existing strings from %s to %s. Using the latest %s for generating output.\n" % (from_file, to_file, base_file))
             obj = XmluiParser(from_file, to_file, base_file)
-            obj.processFiles()
+            obj.process_files()
 
         elif args.which == 'export':
             print("\nConverting %s to %s. Use a spreadsheet editor to edit your translation.\n" % (
-            from_file, to_file))
+                from_file, to_file))
             obj =  SpreadSheet(from_file, to_file)
             obj.exportXLSX()
 
@@ -183,4 +209,3 @@ if __name__ == "__main__":
 
     except AttributeError:
         print ("\nUse -h for instructions.\n")
-
