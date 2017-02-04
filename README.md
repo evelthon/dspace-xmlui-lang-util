@@ -1,4 +1,6 @@
 # DSpace XMLUI lang utilities
+![Screenshot](https://travis-ci.org/evelthon/dspace-xmlui-lang-util.svg?branch=master )
+
 ## About
 The aim of this project is to assist in translating the XML UI into 
 another language, other than english.
