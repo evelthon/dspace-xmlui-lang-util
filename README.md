@@ -18,7 +18,7 @@ non-programmer to do the translation.
 3. Convert the exported XLSX file back to the native xml file for usage
  by DSpace.
 
-##Quick usage
+## Quick usage
 1. Edit the value of `incomplete_translation_file` and set the filename 
 of your old translation file.
 2. Place the base `message.xml `and the old translation file 
@@ -31,7 +31,7 @@ xml file translation to XLSX and open it in a spreadsheet editor.
 5. Issue the command `python3 lang-util.py import` to convert your 
 previously exported XLSX file back to the DSpace XMLUI xml file.
 
-###Notes
+### Notes
 - You can use non-default filename by parsing variables with each command.
 Use `python3 lang-util.py {migrate | export | import} -h` to see
 available options.
